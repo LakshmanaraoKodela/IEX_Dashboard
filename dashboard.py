@@ -98,7 +98,6 @@ def vectorized_format_numbers(series):
 
     return ranges
 
-
 @st.cache_data
 def aggregate_data(df_hash, agg_level):
     """Aggregate data based on the specified level - cached for performance"""
@@ -126,12 +125,18 @@ def aggregate_data(df_hash, agg_level):
         result['DateTime'] = pd.to_datetime(result['Date'].astype(str) + ' ' +
                                             result['Hour'].astype(str).str.zfill(2) + ':00:00')
 
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
+
     elif agg_level == 'daily':
         # Group by Date and Market
         result = df.groupby(['Date', 'Market']).agg({
             'MCP (Rs/kWh)': 'mean'
         }).reset_index()
         result['DateTime'] = result['Date']
+
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
 
     elif agg_level == 'weekly':
         # Group by week and Market
@@ -142,6 +147,9 @@ def aggregate_data(df_hash, agg_level):
         result['DateTime'] = result['Week']
         result['Date'] = result['Week']
 
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
+
     elif agg_level == 'monthly':
         # Group by month and Market
         df['Month'] = df['Date'].dt.to_period('M').dt.start_time
@@ -150,6 +158,9 @@ def aggregate_data(df_hash, agg_level):
         }).reset_index()
         result['DateTime'] = result['Month']
         result['Date'] = result['Month']
+
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
 
     elif agg_level == 'quarterly':
         # Group by quarter and Market
@@ -160,6 +171,9 @@ def aggregate_data(df_hash, agg_level):
         result['DateTime'] = result['Quarter']
         result['Date'] = result['Quarter']
 
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
+
     elif agg_level == 'yearly':
         # Group by year and Market
         df['Year'] = df['Date'].dt.to_period('Y').dt.start_time
@@ -168,6 +182,9 @@ def aggregate_data(df_hash, agg_level):
         }).reset_index()
         result['DateTime'] = result['Year']
         result['Date'] = result['Year']
+
+        # Remove any rows with NaN values
+        result = result.dropna(subset=['MCP (Rs/kWh)'])
 
     return result.sort_values(['Market', 'DateTime'])
 
@@ -581,3 +598,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
